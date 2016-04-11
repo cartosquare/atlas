@@ -1,0 +1,11 @@
+3rd
+3rd/
+build/
+dataset/
+port/
+xcodebuild/
+node_modules/
+
+*.xcodeproj
+tag_tile.pb.h
+tag_tile.pb.cc

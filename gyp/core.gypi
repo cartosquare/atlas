@@ -1,0 +1,17 @@
+{
+    'sources': 
+    [
+        '../include/binary_search.hpp',
+        '../include/cost_functions.hpp',
+        '../include/union_find.hpp',
+        '../include/utility.hpp',
+        '../include/stack1.hpp',
+        '../include/stack2.hpp',
+        '../include/queue1.hpp',
+        '../include/queue2.hpp',
+        '../include/neural_network.hpp',
+        '../include/sort.hpp',
+        '../src/union_find.cpp',
+        '../src/neural_network.cpp',
+    ],
+}
