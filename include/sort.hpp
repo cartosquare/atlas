@@ -5,6 +5,19 @@
 #include <vector>
 #include <iostream>
 
+// Sorting algorithms: summary
+/*
+                   inplace?    stable?      worst     average     best        remarks
+ selection    |      yes   |    no     |   N*N/2  |   N*N/2   |  N*N/2   | N exchanges
+ insertion    |      yes   |    yes    |   N*N/2  |   N*N/4   |    N     | use for small N or partially ordered
+   shell      |      yes   |    no     |     ?    |     ?     |    N     | tight code, subquadratic
+   quick      |      yes   |    no     |   N*N/2  |   2*N*lgN |  N*lgN   | NlogN probalilistic guarantee fastest in practice
+ 3-way quick  |      yes   |    no     |   N*N/2  |   2*N*lgN |    N     | improve quicksort in presence of dumplicate keys
+   merge      |      no    |    yes    |   N*lgN  |    N*lgN  |  N*lgN   | NlogN guarantee, stable
+   heap       |      yes   |    no     |  2*N*lgN |   2*N*lgN |  N*lgN   | NlogN guarantee, in-place
+   ???        |      yes   |    yes    |   N*lgN  |    N*logN |  N*lgN   | holy sorting grail
+ */
+
 namespace atlas {
     // Selection sort
     
@@ -230,6 +243,127 @@ namespace atlas {
         shuffle(a);
         
         quick_sort_sub<T>(a, 0, static_cast<int>(a.size()) - 1);
+    }
+    
+    
+    // 3-way quik-sort, useful for arrays contain large number of dumplicates
+    // Randomized quicksort with 3-way partitioning reduces running time
+    // from linearithmic to linear in broad class of applications
+    
+    // Goal. Partition array into 3 parts so that:
+    // * Entries between lt and gt equal to partition item
+    // * No larger entries to left of lt
+    // * No smaller entries to right of gt
+    
+    // Implementation:
+    // * Let v be partitioning item a[lo].
+    // * Scan i from left to right.
+    //  - (a[i] < v): exchange a[lt] with a[i]; increment both lt and i
+    //  - (a[i] > v): exchange a[gt] with a[i]; decrement gt;
+    //  - (a[i] == v): increment i
+    template<typename T>
+    void quick_sort_3way_sub(std::vector<T>& a, int lo, int hi) {
+        if (hi <= lo + CUTOFF) {
+            // improvement 1:  use insertion fort for small subarray
+            insertion_sort(a, lo, hi);
+            return;
+        }
+        
+        int lt = lo;
+        int i = lo;
+        int gt = hi;
+        
+        // improvement 2: estimate partition item with median of three samples
+        int m = median_of_three(a, lo, lo + (hi - lo)/ 2, hi);
+        exch(a[lo], a[m]);
+        
+        // partition item
+        T v = a[lo];
+        
+        while(i <= gt) {
+            if (a[i] < v) {
+                exch(a[lt++], a[i++]);
+            } else if (a[i] > v) {
+                exch(a[i], a[gt--]);
+            } else {
+                i++;
+            }
+        }
+        
+        quick_sort_3way_sub(a, lo, lt - 1);
+        quick_sort_3way_sub(a, gt + 1, hi);
+    }
+    
+    template<typename T>
+    void quick_sort_3way(std::vector<T>& a) {
+        // shuffle is needed for performance guarantee
+        shuffle(a);
+        
+        quick_sort_3way_sub<T>(a, 0, static_cast<int>(a.size()) - 1);
+    }
+    
+    
+    
+    // Heap Sort
+    // Basic plan for in-place sort
+    // * Create max-heap with all N keys.
+    // * Repeatedly remove the maximum key.
+    
+    // Heap construction. Build max heap using bottom-up method.
+    // Heap construction uses <= 2N compares and exchanges.
+
+    // Sort Down. <= 2NlgN compares and exchanges
+    
+    // Heap Sort is doing best in in-place sorting with NlogN worst-case.
+    // Mergesort: no, linear extra space.
+    // Quicksort: no, quadratic time in worst case.
+    // Heapsort: yes!
+    
+    // Heapsort is optimal for both time and space, but:
+    // * Inner loop longer than quicksort's
+    // * Makes poor use of cache memory
+    // * Not stable
+    
+    template<typename T>
+    void sink(std::vector<T>& a, int k, int N) {
+        // NOTE: the value of node k is a[k - 1]
+        
+        // make sure k is not the bottom level
+        while (2 * k < N) {
+            // j is the left children
+            int j = 2 * k;
+            if (j < N && a[j - 1] < a[j]) {
+                // now, j is the bigger children
+                j++;
+            }
+            
+            if (a[k - 1] > a[j - 1]) {
+                break;
+            }
+            
+            // if parent node is smaller than the bigger children, exchange
+            exch(a[k - 1], a[j - 1]);
+            
+            // sink down a level
+            k = j;
+        }
+    }
+    
+    template<typename T>
+    void heap_sort(std::vector<T>& pq) {
+        int N = pq.size();
+        
+        // Heap construction
+        for (int k = N / 2; k >= 1; --k) {
+            // loop for every non leaf node
+            sink(pq, k, N);
+        }
+        
+        // Sort down
+        while(N > 1) {
+            exch(pq[0], pq[N - 1]);
+            sink(pq, 1, --N);
+        }
     }
     
 }

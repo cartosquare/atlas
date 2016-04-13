@@ -2,9 +2,11 @@
     'sources': 
     [
         '../include/binary_search.hpp',
+        '../include/binary_heap.hpp',
         '../include/cost_functions.hpp',
         '../include/union_find.hpp',
         '../include/utility.hpp',
+        '../include/selection.hpp',
         '../include/stack1.hpp',
         '../include/stack2.hpp',
         '../include/queue1.hpp',
