@@ -12,5 +12,6 @@
         '../tests/cases/queue_test.cpp',
         '../tests/cases/sorting_test.cpp',
         '../tests/cases/neural_network.cpp',
+        '../tests/cases/symbol_table_test.cpp'
     ],
 }
